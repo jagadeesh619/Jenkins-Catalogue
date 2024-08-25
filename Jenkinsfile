@@ -18,34 +18,44 @@ pipeline {
             steps{
                 script {
 
+                    def Jsonfile = readJSON file: 'package.json'
+                    appversion = Jsonfile.version
+                    echo "appversion : $appversion"
+                }             
+            }
+        }
+        stage('getversion'){
+            steps{
+                script {
+
                     def Jsonfile = readJSON file: 'package.json' 
                     appversion = Jsonfile.version
                     echo "appversion : $appversion"  
                 }             
             }
         }
-    //     stage('deploy'){
-    //         when {
-    //             expression { "${params.ENVIRONMENT}" == "DEV" }
-    //         }
-    //         input {
-    //             message "Should we continue?"
-    //             ok "Yes, we should."
-    //         }
-    //         steps{
+        stage("installing dependencies"){
+            steps{
 
-    //             echo "Deployed the code in ${params.ENVIRONMENT} ${app} server"
-    //         }
-    //     }
-    // }
+                sh"""
+
+                    npm install
+                    ls -lart
+
+                """
+            }
+        }
+
+
+ 
     }
     post {
 
         success{
-            echo " Your pipeline job is success "
+            echo "Your pipeline job is success"
         }
         failure{
-            echo " Your pipeline job is failure "
+            echo "Your pipeline job is failure"
         }
     }
 }
