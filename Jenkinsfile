@@ -24,16 +24,6 @@ pipeline {
                 }             
             }
         }
-        stage('getversion'){
-            steps{
-                script {
-
-                    def Jsonfile = readJSON file: 'package.json' 
-                    appversion = Jsonfile.version
-                    echo "appversion : $appversion"  
-                }             
-            }
-        }
         stage("installing dependencies"){
             steps{
 
