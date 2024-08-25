@@ -35,12 +35,22 @@ pipeline {
                 """
             }
         }
+        stage("creating artifact file") {
+            steps{
 
-
- 
+                sh """
+                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
+                    ls -lart
+                """
+            }
+        }
     }
     post {
 
+        always {
+            deleteDir()
+            echo "Deleted previous workspace"
+        }
         success{
             echo "Your pipeline job is success"
         }
