@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         appversion=""
-        nexusURL="184.73.57.35:8081"
+        nexusURL="172.31.92.173:8081"
     }
     parameters {
         choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'prod'], description: 'Pick which environment')
