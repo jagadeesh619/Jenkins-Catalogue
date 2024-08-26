@@ -4,6 +4,11 @@ pipeline {
         appversion=""
         nexusURL="184.73.57.35:8081"
     }
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'prod'], description: 'Pick which environment')
+        choice(name: 'action', choices: ['destroy', 'apply'], description: 'Pick which action')
+
+    }
     options {
         // Timeout counter starts AFTER agent is allocated
         timeout(time: 1, unit: 'HOURS')
@@ -40,11 +45,12 @@ pipeline {
             steps{
 
                 sh """
-                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
+                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip" -x "*-cd"
                     ls -lart
                 """
             }
         }
+
         stage('Publish Artifact to nexus ') {
             steps {
                  nexusArtifactUploader(
@@ -62,6 +68,41 @@ pipeline {
                         type: 'zip']
                     ]
                 )
+            }
+        }
+        stage("terrform intiating to deploy the application ") {
+            steps{
+
+                sh """
+                    cd catalogue-cd
+                    terraform init --backend-config=${params.ENVIRONMENT}/backend.tf -reconfigure
+                """
+            }
+        }
+        stage("terrform plan to deploy the application ") {
+            steps{
+
+                sh """
+                    cd catalogue-cd
+                    terraform plan -var="environment=${params.ENVIRONMENT} -var="appversion=${appversion}"
+                """
+            }
+        }
+         stage("terrform apply to deploy the application ") {
+
+            steps{
+
+                input {
+                 message "Should we continue?"
+                 ok "Yes, we should."
+                }
+
+                sh """
+                    
+                    cd catalogue-cd
+                    terraform ${params.action} -auto-approve -var="environment=${params.ENVIRONMENT} -var="appversion=${appversion}"
+
+                """
             }
         }
     }
