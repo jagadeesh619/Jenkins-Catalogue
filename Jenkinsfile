@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         appversion=""
+        nexusURL="184.73.57.35:8081"
     }
     options {
         // Timeout counter starts AFTER agent is allocated
@@ -42,6 +43,25 @@ pipeline {
                     zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
                     ls -lart
                 """
+            }
+        }
+        stage('Publish Artifact') {
+            steps {
+                 nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: "${nexusURL}",
+                    groupId: 'com.roboshop',
+                    version: "${packageVersion}",
+                    repository: 'catalogue',
+                    credentialsId: 'nexus-auth',
+                    artifacts: [
+                        [artifactId: 'catalogue',
+                        classifier: '',
+                        file: 'catalogue.zip',
+                        type: 'zip']
+                    ]
+                )
             }
         }
     }
