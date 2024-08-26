@@ -41,6 +41,22 @@ pipeline {
                 """
             }
         }
+        stage('testing unit test cases '){
+            steps{
+                echo "Unit test cases is done"
+            }
+        }
+
+        stage('Static source code analysis'){
+            steps{
+                sh """
+
+                sonar-scanner
+
+                """
+            }
+        }
+
         stage("creating artifact file") {
             steps{
 
@@ -72,6 +88,10 @@ pipeline {
         }
         stage("terrform intiating to deploy the application ") {
             steps{
+                input {
+                 message "Should we continue?"
+                 ok "Yes, we should."
+                }
 
                 sh """
                     cd catalogue-cd
